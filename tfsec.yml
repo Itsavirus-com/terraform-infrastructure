@@ -1,0 +1,39 @@
+# tfsec configuration file
+# See https://aquasecurity.github.io/tfsec/latest/guides/configuration/
+
+# Exclude checks (example - uncomment and customize as needed)
+# exclude:
+#   - AWS001
+#   - AWS002
+
+# Minimum severity to report
+# severity: MEDIUM
+
+# Include excluded checks
+# include: []
+
+# Enable verbose output
+# verbose: true
+
+# Disable statistics output
+# no-statistics: false
+
+# Plugin install directory
+# plugin-dir: "~/.local/share/tfsec"
+
+# Force to update plugin cache
+# force-update: true
+
+# Output additional information about which check failed
+# concise-output: false
+
+# Show usernames for checks that check a specific user
+# include-passed: false
+
+# Output format (console, json, csv, checkstyle, junit, sarif, github, default: console)
+# format: console
+
+# Custom rules location
+# custom-check-dir: ""
+
+

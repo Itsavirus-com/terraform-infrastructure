@@ -1,0 +1,45 @@
+# Checkov configuration file
+# See https://www.checkov.io/3.Scans/Including%20%26%20Excluding%20Policies.html#via-.checkov.yml
+
+# Framework to run
+framework:
+  - terraform
+# Skip checks (example - customize as needed)
+# skip-check:
+#   - CKV_AWS_20
+#   - CKV_AWS_18
+
+# Include checks
+# check:
+
+# Show skipped checks
+# show-config: false
+
+# No-fail: exit with code 0 even if findings are found
+# no-fail: false
+
+# Download additional policies from URL
+# download:
+#   - https://www.acme.com/custom-policy-library
+
+# Compact output format
+# compact: false
+
+# Quiet mode - suppress non-error messages
+# quiet: false
+
+# Soft-fail: exit with return code 0 even if checks fail
+# soft-fail: false
+
+# Use external checks
+# external-checks-git: https://github.com/example/custom-checks
+
+# Enable policy metadata filtering
+# policy-metadata-filter: ""
+
+# Minimum severity level (HIGH, MEDIUM, LOW)
+# minimum-severity: HIGH
+
+# Use only specific check IDs
+# use-check-defaults: false
+

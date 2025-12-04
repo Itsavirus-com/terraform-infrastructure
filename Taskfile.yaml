@@ -1,0 +1,104 @@
+version: "3"
+
+tasks:
+  key-pairs:encrypt:
+    desc: encrypt key-pairs/privkey file using KMS
+    cmds:
+      - aws kms encrypt --key-id alias/iav-kms --plaintext fileb://key-pairs/privkey  --output text --query CiphertextBlob | base64 --decode > key-pairs/privkey.encrypted
+
+  key-pairs:decrypt:
+    desc: decrypt key-pairs/privkey file using KMS
+    cmds:
+      - aws kms decrypt --ciphertext-blob fileb://key-pairs/privkey.encrypted --query Plaintext --output text | base64 --decode > key-pairs/privkey
+
+  infra:init:
+    desc: initialize terraform for all projects
+    cmds:
+      - find projects/*/* -maxdepth 0 -type d | xargs -I {} terraform -chdir=./{} init
+
+  infra:plan:
+    desc: planning terraform for specific project -- ${PROJECT_NAME}/${ENVIRONMENT}
+    cmds:
+      - terraform -chdir=./projects/{{.CLI_ARGS}} plan
+
+  infra:apply:
+    desc: apply terraform for specific project -- ${PROJECT_NAME}/${ENVIRONMENT}
+    cmds:
+      - terraform -chdir=./projects/{{.CLI_ARGS}} apply
+
+  security:scan:
+    desc: run security scans using tfsec and checkov
+    cmds:
+      - task: security:tfsec
+      - task: security:checkov
+
+  security:tfsec:
+    desc: run tfsec security scanner
+    cmds:
+      - |
+        if ! command -v tfsec &> /dev/null; then
+          echo "tfsec not found. Install with: brew install tfsec"
+          exit 1
+        fi
+      - tfsec . --tfvars-file projects/*/*/*.tfvars 2>/dev/null || true
+      - tfsec modules/
+      - tfsec terraform-modules/
+
+  security:checkov:
+    desc: run checkov security scanner
+    cmds:
+      - |
+        # Add pipx bin to PATH if available
+        export PATH="$HOME/.local/bin:$PATH"
+        if ! command -v checkov &> /dev/null; then
+          echo "checkov not found. Install with: task security:install-tools"
+          echo "Or manually: pipx install checkov"
+          exit 1
+        fi
+      - |
+        export PATH="$HOME/.local/bin:$PATH"
+        checkov --directory . --framework terraform
+
+  security:fix:
+    desc: run tfsec with auto-fix suggestions
+    cmds:
+      - |
+        if ! command -v tfsec &> /dev/null; then
+          echo "tfsec not found. Install with: brew install tfsec"
+          exit 1
+        fi
+      - tfsec . --tfvars-file projects/*/*/*.tfvars --format junit --out tfsec-report.xml
+
+  security:install-tools:
+    desc: install security scanning tools (tfsec and checkov)
+    cmds:
+      - |
+        # Check for macOS
+        if uname -s | grep -q Darwin || [[ "$OSTYPE" == "darwin"* ]]; then
+          echo "Detected macOS. Installing tools..."
+          echo ""
+          echo "Installing tfsec via brew..."
+          if command -v brew &> /dev/null; then
+            brew install tfsec
+          else
+            echo "Homebrew not found. Please install Homebrew first or run: brew install tfsec"
+          fi
+          echo ""
+          echo "Installing checkov..."
+          if command -v pipx &> /dev/null; then
+            pipx install checkov
+            pipx ensurepath
+            echo "✓ checkov installed and PATH updated"
+          elif command -v brew &> /dev/null; then
+            pip3 install --user checkov
+            echo "Note: checkov was installed with --user flag. Make sure ~/.local/bin is in your PATH"
+          else
+            echo "Please install pipx first: brew install pipx"
+          fi
+        else
+          echo "This script is optimized for macOS."
+          echo ""
+          echo "Please install tfsec and checkov manually:"
+          echo "  tfsec: https://aquasecurity.github.io/tfsec/latest/guides/getting-started/"
+          echo "  checkov: pip install checkov"
+        fi

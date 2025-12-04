@@ -1,0 +1,15 @@
+# AWS Credentials
+# NOTE: These should be set in secrets.tfvars (not committed to Git)
+# Or use AWS profiles instead: aws_profile = "your-profile-name"
+access_key = "YOUR_AWS_ACCESS_KEY_ID"
+secret_key = "YOUR_AWS_SECRET_ACCESS_KEY"
+
+# AWS Configuration
+aws_region = "eu-central-1"
+
+# Domain Configuration
+domain_name = "test.mobypark.com"
+route53_zone_name = "test.mobypark.com"
+
+# EC2 Key Pair
+ec2_key_name = "mobypark-prod-key" 
